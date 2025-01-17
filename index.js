@@ -7,6 +7,8 @@ app.use(express.json());
 app.use(cors());
 const mongoose = require("mongoose");
 const { GridFSBucket } = require("mongodb");
+const util = require("i/lib/util");
+const convertMp3 = require("./utils/convertMp3");
 
 // //mongoose set up
 mongoose.connect(process.env.MONGO_URL, {
@@ -42,10 +44,14 @@ mongoose.connection.once("open", () => {
   gridfsThumbBucket = new GridFSBucket(mongoose.connection.db, {
     bucketName: "thumbUploads", // Optional custom bucket name
   });
+  gridfsPreviewSongBucket = new GridFSBucket(mongoose.connection.db, {
+    bucketName: "previewSongUploads", // Optional custom bucket name
+  });
   // Set gfs as a local variable so it's accessible in other parts of the app
   app.locals.gridfsSongBucket = gridfsSongBucket;
   app.locals.gridfsImageBucket = gridfsImageBucket;
   app.locals.gridfsThumbBucket = gridfsThumbBucket;
+  app.locals.gridfsPreviewSongBucket = gridfsPreviewSongBucket;
 });
 //test route
 app.get("/ping", (req, res) => {
@@ -57,6 +63,7 @@ app.use("/projects", require("./routes/projects"));
 app.use("/images", require("./routes/images"));
 app.use("/songs", require("./routes/songs"));
 app.use("/mapping", require("./routes/mapping"));
+app.use("/payments", require("./routes/payments"));
 const PORT = process.env.PORT || 6001;
 app.listen(PORT, () => {
   console.log("server running");

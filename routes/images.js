@@ -107,9 +107,9 @@ app.get("/thumb/:id", async (req, res) => {
       res.status(500).json({ message: "Error retrieving image" });
     });
 
-    downloadStream.on("end", () => {
-      console.log("Image retrieval complete.");
-    });
+    // downloadStream.on("end", () => {
+    //   console.log("Image retrieval complete.");
+    // });
   } catch (err) {
     console.error("Error fetching image:", err);
     res

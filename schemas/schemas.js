@@ -16,6 +16,7 @@ const User = mongoose.model("User", userSchema);
 const projectSchema = new mongoose.Schema({
   ownerId: { type: String, required: true },
   projectId: { type: String, required: true, unique: true },
+  tempProjectId: { type: String, required: true, unique: true },
   projectTitle: { type: String, required: true },
   artist: { type: String, required: true },
   description: { type: String, required: true },
@@ -46,6 +47,7 @@ const songSchema = new mongoose.Schema({
   track: { type: Number, required: true },
   side: { type: String, required: true },
   preview: { type: Boolean, required: true },
+  previewId: { type: String },
   length: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now },
 });

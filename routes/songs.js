@@ -4,7 +4,7 @@ const { Song } = require("../schemas/schemas");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const { Readable } = require("stream");
-
+const convertMp3 = require("../utils/convertMp3");
 //set up gridfs storage / multer
 
 const storage = multer.memoryStorage();
@@ -15,10 +15,12 @@ const upload = multer({ storage });
 
 app.post("/", upload.single("songFile"), async (req, res) => {
   const gridfsSongBucket = req.app.locals.gridfsSongBucket; // Access GridFS instance
+  const gridfsPreviewSongBucket = req.app.locals.gridfsPreviewSongBucket;
 
   try {
     if (!req.file) return res.status(400).send("No file uploaded.");
 
+    // Save original file to GridFS
     const uploadStream = gridfsSongBucket.openUploadStream(
       req.file.originalname,
       {
@@ -39,13 +41,47 @@ app.post("/", upload.single("songFile"), async (req, res) => {
 
         const { ownerId, projectId, title, track, side, preview, length } =
           req.body;
+
+        let previewFileId = null;
+        const isPreview = preview === "true" || preview === true;
+        if (isPreview) {
+          try {
+            // Convert to MP3 and upload preview
+            const mp3Buffer = await convertMp3(req.file.buffer);
+            const previewUploadStream =
+              gridfsPreviewSongBucket.openUploadStream(
+                `preview_${req.file.originalname}`,
+                {
+                  contentType: "audio/mpeg",
+                }
+              );
+            Readable.from(mp3Buffer).pipe(previewUploadStream);
+
+            previewFileId = await new Promise((resolve, reject) => {
+              previewUploadStream.on("finish", () =>
+                resolve(previewUploadStream.id)
+              );
+              previewUploadStream.on("error", reject);
+            });
+
+            console.log("Preview uploaded successfully:", previewFileId);
+          } catch (err) {
+            console.error("Error generating preview:", err);
+            return res.status(500).json({
+              message: "Error generating preview",
+              error: err.message,
+            });
+          }
+        }
+
         const newSong = new Song({
           ownerId: ownerId,
           projectId: projectId,
           fileName: req.file.originalname,
           mimeType: req.file.mimetype,
           title: title || req.file.originalname,
-          songId: uploadStream.id, // Use the ID from the upload stream
+          songId: uploadStream.id, // Original file ID
+          previewId: previewFileId, // Preview file ID (if any)
           track,
           side,
           preview,
@@ -60,85 +96,69 @@ app.post("/", upload.single("songFile"), async (req, res) => {
     res.status(500).send(err);
   }
 });
-///get a single song
+///get a single song to preview
 
-// app.get("/:songId", async (req, res) => {
-//   try {
-//     const gridfsBucket = req.app.locals.gridfsBucket; // Access GridFS instance
-//     const { songId } = req.params;
-//     // Validate the songId before proceeding
-//     if (!mongoose.Types.ObjectId.isValid(songId)) {
-//       return res.status(400).json({ message: "Invalid song ID format" });
-//     }
-//     const fileId = new mongoose.Types.ObjectId(songId);
-//     const file = await gridfsBucket.files.find({ _id: fileId }).toArray();
+app.get("/preview/:id", async (req, res) => {
+  const gridfsPreviewSongBucket = req.app.locals.gridfsPreviewSongBucket; // Access GridFS instance
+  const songId = req.params.id;
+  console.log("Preview track called", songId);
 
-//     if (!file || file.length === 0) {
-//       return res.status(404).json({ message: "File not found" });
-//     }
-//     // res.status(200).send(file);
-//     // Check if it's an audio file
-//     if (file.contentType === "audio/mpeg" || file.contentType === "audio/wav") {
-//       // Set the response header for correct audio MIME type
-//       res.set("Content-Type", file[0].contentType);
+  // Validate if songId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(songId)) {
+    return res.status(400).json({ message: "Invalid song ID" });
+  }
 
-//       //     // Stream the audio file from GridFS
-//       const readstream = await gridfsBucket.createReadStream({ _id: file._id });
-//       readstream.pipe(res);
-//       // Handle errors during streaming
-//       readstream.on("error", (err) => {
-//         console.error("Stream error:", err);
-//         res.status(500).send("Error streaming the file");
-//       });
-//     } else {
-//       res.status(400).json({ message: "Not an audio file" });
-//     }
-//   } catch (err) {
-//     console.error("Error retrieving file:", err);
-//     res.status(500).send(err);
-//   }
-// });
+  const objectId = new mongoose.Types.ObjectId(songId);
 
-app.get("/:songId", async (req, res) => {
   try {
-    const gridfsBucket = req.app.locals.gridfsBucket; // Access GridFS instance
-    const { songId } = req.params;
+    // Find the song in GridFS
+    const files = await gridfsPreviewSongBucket
+      .find({ _id: objectId })
+      .toArray();
 
-    // Validate the songId before proceeding
-    if (!mongoose.Types.ObjectId.isValid(songId)) {
-      return res.status(400).json({ message: "Invalid song ID format" });
+    if (!files || files.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No audio file found with the given ID" });
     }
 
-    const fileId = new mongoose.Types.ObjectId(songId);
-
-    // Find the file in GridFS
-    const file = await gridfsBucket.find({ _id: fileId }).toArray();
-
-    if (file.length === 0) {
-      return res.status(404).json({ message: "File not found" });
+    const fileDetails = files[0];
+    console.log(fileDetails);
+    if (fileDetails.contentType !== "audio/mpeg") {
+      return res
+        .status(400)
+        .json({ message: "File is not a valid audio/mpeg file" });
     }
 
-    // Check if the file is an audio file
-    const audioMimeTypes = ["audio/mpeg", "audio/wav"];
-    if (!audioMimeTypes.includes(file[0].contentType)) {
-      return res.status(400).json({ message: "Not an audio file" });
-    }
+    // Set necessary headers for CORS and streaming
+    res.set("Access-Control-Allow-Origin", "*"); // Allow access from any domain or specify your frontend domain
+    res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.set("Referrer-Policy", "no-referrer-when-downgrade");
 
-    // Set the response header for correct audio MIME type
-    res.set("Content-Type", file[0].contentType);
+    // Set the Content-Type and Content-Disposition headers
+    res.set("Content-Type", "audio/mpeg");
+    res.set(
+      "Content-Disposition",
+      `inline; filename="${fileDetails.filename}"`
+    );
 
-    // Stream the audio file from GridFS
-    const readstream = gridfsBucket.openDownloadStream(fileId);
-    readstream.pipe(res);
+    // Stream the file to the client
+    const readStream = gridfsPreviewSongBucket.openDownloadStream(
+      fileDetails._id
+    );
 
     // Handle errors during streaming
-    readstream.on("error", (err) => {
-      console.error("Stream error:", err);
-      res.status(500).send("Error streaming the file");
+    readStream.on("error", (err) => {
+      console.error("Error while streaming:", err);
+      res.status(500).json({ message: "Error streaming the file" });
     });
+
+    // Pipe the GridFS read stream to the response
+    readStream.pipe(res);
   } catch (err) {
-    console.error("Error retrieving file:", err);
-    res.status(500).send(err);
+    console.error("Error fetching file from GridFS:", err);
+    res.status(500).json({ message: "Error fetching the file from GridFS" });
   }
 });
 

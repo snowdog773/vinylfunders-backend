@@ -2,19 +2,63 @@ const express = require("express");
 const app = express.Router();
 const { nanoid } = require("nanoid");
 const { Project, Image, Song } = require("../schemas/schemas");
+app.get("/allProjects", async (req, res) => {
+  const { limit } = req.query;
+  try {
+    const projects = await Project.find({})
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+    const output = await Promise.all(
+      projects.map(async (project) => {
+        const { projectId } = project;
+
+        // Use .lean() to get plain objects for the thumbIds
+        const thumbIds = await Image.find({ projectId }).lean();
+
+        const thumbArray = thumbIds.map((e) => e.thumbId);
+        // Return the project with added frontCover and backCover
+        return {
+          ...project,
+          frontCover: thumbArray[0],
+          backCover: thumbArray[1],
+        };
+      })
+    );
+    res.json(output);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 // get all projects for a user id
 app.get("/all/:ownerId", async (req, res) => {
   try {
     const { ownerId } = req.params;
 
-    const projects = await Project.find({ ownerId });
-    const output = projects.map(async (project) => {
-      const { projectId } = project;
-      const thumbIds = await Image.find({ projectId });
-      const thumbArray = thumbIds.map((e) => e.thumbId);
-    });
+    // Use .lean() to get plain objects instead of Mongoose documents
+    const projects = await Project.find({ ownerId }).lean();
 
-    res.status(200).json(projects);
+    const output = await Promise.all(
+      projects.map(async (project) => {
+        const { projectId } = project;
+
+        // Use .lean() to get plain objects for the thumbIds
+        const thumbIds = await Image.find({ projectId }).lean();
+
+        const thumbArray = thumbIds.map((e) => e.thumbId);
+
+        // Return the project with added frontCover and backCover
+        return {
+          ...project,
+          frontCover: thumbArray[0],
+          backCover: thumbArray[1],
+        };
+      })
+    );
+
+    // Send the output back as a JSON response
+    res.status(200).json(output);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -49,10 +93,18 @@ app.get("/single/:projectId", async (req, res) => {
 // create new project
 app.post("/", async (req, res) => {
   try {
-    const { ownerId, projectId, projectTitle, artist, description } = req.body;
+    const {
+      ownerId,
+      projectId,
+      projectTitle,
+      artist,
+      description,
+      tempProjectId,
+    } = req.body;
     const newProject = new Project({
       ownerId,
       projectId,
+      tempProjectId,
       projectTitle,
       artist,
       description,
