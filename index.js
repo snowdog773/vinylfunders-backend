@@ -64,6 +64,8 @@ app.use("/images", require("./routes/images"));
 app.use("/songs", require("./routes/songs"));
 app.use("/mapping", require("./routes/mapping"));
 app.use("/payments", require("./routes/payments"));
+app.use("/funders", require("./routes/funders"));
+app.use("/contact", require("./routes/contact"));
 const PORT = process.env.PORT || 6001;
 app.listen(PORT, () => {
   console.log("server running");

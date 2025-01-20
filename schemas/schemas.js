@@ -21,7 +21,10 @@ const projectSchema = new mongoose.Schema({
   artist: { type: String, required: true },
   description: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
-  completed: { type: Boolean, default: false },
+  completed: { type: Boolean, default: false }, //refers to is project setup
+  status: { type: String, required: true }, //'active' or 'complete' depending if funding target is met
+  fundTarget: { type: Number, required: true }, //in pence
+  fundRaised: { type: Number, required: true }, //in pence
 });
 
 const Project = mongoose.model("Project", projectSchema);

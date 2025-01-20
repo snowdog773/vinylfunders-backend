@@ -69,10 +69,17 @@ app.get("/single/:projectId", async (req, res) => {
   try {
     const { projectId } = req.params;
     console.log("Received request for projectId:", req.params.projectId);
-    const { artist, description, projectTitle, createdAt } =
-      await Project.findOne({
-        projectId,
-      });
+    const {
+      artist,
+      description,
+      projectTitle,
+      createdAt,
+      fundRaised,
+      fundTarget,
+      status,
+    } = await Project.findOne({
+      projectId,
+    });
     const thumbIds = await Image.find({ projectId });
     const thumbArray = thumbIds.map((e) => e.thumbId);
 
@@ -84,6 +91,9 @@ app.get("/single/:projectId", async (req, res) => {
       createdAt,
       thumbArray,
       songArray,
+      fundRaised,
+      fundTarget,
+      status,
     });
   } catch (err) {
     res.status(500).send(err);
@@ -100,6 +110,7 @@ app.post("/", async (req, res) => {
       artist,
       description,
       tempProjectId,
+      fundTarget,
     } = req.body;
     const newProject = new Project({
       ownerId,
@@ -109,6 +120,9 @@ app.post("/", async (req, res) => {
       artist,
       description,
       completed: false,
+      fundTarget,
+      fundRaised: 0,
+      status: "active",
     });
 
     await newProject.save();

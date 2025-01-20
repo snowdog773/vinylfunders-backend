@@ -6,8 +6,8 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
 app.post("/create-checkout-session", async (req, res) => {
   try {
-    const { priceId, tempProjectId, target } = req.body;
-    console.log(priceId, tempProjectId, target);
+    const { priceId, projectId } = req.body;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -19,10 +19,10 @@ app.post("/create-checkout-session", async (req, res) => {
       mode: "payment",
       payment_intent_data: {
         metadata: {
-          tempProjectId,
+          projectId,
         },
       },
-      success_url: `${process.env.FRONTEND_URL}/processingPayment?tempProjectId=${tempProjectId}&target=${target}`,
+      success_url: `${process.env.FRONTEND_URL}`,
       cancel_url: `${process.env.FRONTEND_URL}/paymentFailed`,
     });
 
@@ -32,16 +32,7 @@ app.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-////INCOMPLETE - NEEDS TO CHECK PAYMENTS TABLE OF DB TO CONFIRM PAYMENT SUCCESSFUL
-app.get("/check-payment/:tempProjectId", async (req, res) => {
-  try {
-    const { tempProjectId } = req.params;
-    console.log(tempProjectId, "tempProjectId");
-    res.status(200).json({ tempProjectId, status: "paid" });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
+
+//NEED WEBHOOK ENDPOINT FOR STRIPE TO CONFIRM PAYMENT SUCCESSFUL AND WRITE TO NEW MONGO TABLE
 
 module.exports = app;
