@@ -12,8 +12,8 @@ const convertMp3 = require("./utils/convertMp3");
 
 // //mongoose set up
 mongoose.connect(process.env.MONGO_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  // useNewUrlParser: true,
+  // useUnifiedTopology: true,
 });
 // Connection events
 
