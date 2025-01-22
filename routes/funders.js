@@ -6,7 +6,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
 app.post("/create-checkout-session", async (req, res) => {
   try {
-    const { priceId, projectId, paymentRef } = req.body;
+    const { priceId, projectId, paymentRef, projectTitle, artist } = req.body;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -21,6 +21,8 @@ app.post("/create-checkout-session", async (req, res) => {
         metadata: {
           projectId,
           paymentRef,
+          projectTitle,
+          artist,
         },
       },
       shipping_address_collection: {
