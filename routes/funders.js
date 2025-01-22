@@ -2,11 +2,11 @@ const express = require("express");
 const app = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-//THIS FILE IS FOR PAYMENTS INVOLVING SETTING UP PROJECTS - FOR FUND SPONSORS LOOK FOR funders.js
+//THIS FILE IS FOR PAYMENTS INVOLVING TAKING PAYMENT FROM FUNDERS - FOR PROJECT SETUP PAYMENTS LOOK FOR payments.js
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
 app.post("/create-checkout-session", async (req, res) => {
   try {
-    const { priceId, projectId } = req.body;
+    const { priceId, projectId, paymentRef } = req.body;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -20,9 +20,13 @@ app.post("/create-checkout-session", async (req, res) => {
       payment_intent_data: {
         metadata: {
           projectId,
+          paymentRef,
         },
       },
-      success_url: `${process.env.FRONTEND_URL}`,
+      shipping_address_collection: {
+        allowed_countries: ["GB"],
+      },
+      success_url: `${process.env.FRONTEND_URL}/confirmFunder?paymentRef=${paymentRef}`,
       cancel_url: `${process.env.FRONTEND_URL}/paymentFailed`,
     });
 
@@ -34,5 +38,11 @@ app.post("/create-checkout-session", async (req, res) => {
 });
 
 //NEED WEBHOOK ENDPOINT FOR STRIPE TO CONFIRM PAYMENT SUCCESSFUL AND WRITE TO NEW MONGO TABLE
+
+app.post("/confirm", async (req, res) => {
+  const { paymentRef } = req.body;
+  //check paymentRef in DB
+  res.status(200).json({ paymentRef, status: "paid" });
+});
 
 module.exports = app;
