@@ -18,10 +18,16 @@ app.get("/allProjects", async (req, res) => {
 
         const thumbArray = thumbIds.map((e) => e.thumbId);
         // Return the project with added frontCover and backCover
+
+        //get song preview ID
+        const songPreviewObject = await Song.findOne({ projectId }).lean();
+
         return {
           ...project,
           frontCover: thumbArray[0],
           backCover: thumbArray[1],
+          songTitle: songPreviewObject.title,
+          songPreviewId: songPreviewObject.previewId,
         };
       })
     );
@@ -48,11 +54,16 @@ app.get("/all/:ownerId", async (req, res) => {
 
         const thumbArray = thumbIds.map((e) => e.thumbId);
 
+        //get song preview ID
+        const songPreviewObject = await Song.findOne({ projectId }).lean();
+
         // Return the project with added frontCover and backCover
         return {
           ...project,
           frontCover: thumbArray[0],
           backCover: thumbArray[1],
+          songTitle: songPreviewObject.title,
+          songPreviewId: songPreviewObject.previewId,
         };
       })
     );
