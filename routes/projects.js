@@ -21,13 +21,13 @@ app.get("/allProjects", async (req, res) => {
 
         //get song preview ID
         const songPreviewObject = await Song.findOne({ projectId }).lean();
-
+        console.log(songPreviewObject);
         return {
           ...project,
           frontCover: thumbArray[0],
           backCover: thumbArray[1],
-          songTitle: songPreviewObject.title,
-          songPreviewId: songPreviewObject.previewId,
+          // songTitle: songPreviewObject.title,
+          // songPreviewId: songPreviewObject.previewId,
         };
       })
     );
