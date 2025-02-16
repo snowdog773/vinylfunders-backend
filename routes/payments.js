@@ -59,4 +59,9 @@ app.post("/webhook", async (req, res) => {
   res.status(200).json({ received: true });
 });
 
+app.get("/stripeRecords", async (req, res) => {
+  const records = await PaymentWebhookRecord.find();
+  res.status(200).json(records);
+});
+
 module.exports = app;
