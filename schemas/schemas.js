@@ -58,4 +58,15 @@ const songSchema = new mongoose.Schema({
 
 const Song = mongoose.model("Song", songSchema);
 
-module.exports = { User, Project, Song, Image };
+const paymentWebhookRecordSchema = new mongoose.Schema({
+  // paymentId: { type: String, required: true },
+  // projectId: { type: String, required: true },
+  rawData: { type: String, required: true },
+  date: { type: Date, default: Date.now },
+});
+const PaymentWebhookRecord = mongoose.model(
+  "PaymentWebhookRecord",
+  paymentWebhookRecordSchema
+);
+
+module.exports = { User, Project, Song, Image, PaymentWebhookRecord };

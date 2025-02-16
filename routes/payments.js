@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
+const { PaymentWebhookRecord } = require("../schemas/schemas");
 //THIS FILE IS FOR PAYMENTS INVOLVING SETTING UP PROJECTS - FOR FUND SPONSORS LOOK FOR funders.js
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
 app.post("/create-checkout-session", async (req, res) => {
@@ -52,6 +52,9 @@ app.post("/webhook", async (req, res) => {
   console.table(req.body);
   console.table(req.body.data);
   console.log(sig);
+  PaymentWebhookRecord.create({
+    rawData: JSON.stringify(req.body),
+  });
   let event;
   res.status(200).json({ received: true });
 });
