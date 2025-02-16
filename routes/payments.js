@@ -50,6 +50,8 @@ app.get("/check-payment/:tempProjectId", async (req, res) => {
 app.post("/webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
   console.table(req.body);
+  console.table(req.body.data);
+  console.log(sig);
   let event;
   res.status(200).json({ received: true });
 });
