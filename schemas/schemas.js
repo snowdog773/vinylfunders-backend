@@ -59,10 +59,11 @@ const songSchema = new mongoose.Schema({
 const Song = mongoose.model("Song", songSchema);
 
 const paymentWebhookRecordSchema = new mongoose.Schema({
-  // paymentId: { type: String, required: true },
-  // projectId: { type: String, required: true },
+  paymentId: { type: String, required: true },
+  tempProjectId: { type: String, required: true },
   rawData: { type: String, required: true },
   date: { type: Date, default: Date.now },
+  type: { type: String, required: true },
 });
 const PaymentWebhookRecord = mongoose.model(
   "PaymentWebhookRecord",

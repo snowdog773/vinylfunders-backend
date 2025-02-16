@@ -53,7 +53,10 @@ app.post("/webhook", async (req, res) => {
   console.table(req.body.data);
   console.log(sig);
   PaymentWebhookRecord.create({
+    paymentId: req.body.data.object.id,
     rawData: JSON.stringify(req.body),
+    type: req.body.type,
+    tempProjectId: req.body.data.object.metadata.tempProjectId,
   });
   let event;
   res.status(200).json({ received: true });
@@ -63,7 +66,7 @@ app.get("/stripeRecords", async (req, res) => {
   const records = await PaymentWebhookRecord.find();
   // Since records is an array of documents, map through them to parse the rawData
   const parsedRecords = records.map((record) => JSON.parse(record.rawData));
-  res.status(200).json(parsedRecords);
+  res.status(200).json(parsedRecords, paymentId, type, tempProjectId);
 });
 
 module.exports = app;
