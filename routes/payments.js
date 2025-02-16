@@ -20,6 +20,7 @@ app.post("/create-checkout-session", async (req, res) => {
       payment_intent_data: {
         metadata: {
           tempProjectId,
+          target,
         },
       },
       success_url: `${process.env.FRONTEND_URL}/processingPayment?tempProjectId=${tempProjectId}&target=${target}`,
@@ -42,6 +43,15 @@ app.get("/check-payment/:tempProjectId", async (req, res) => {
     console.error("Error:", error);
     res.status(500).json({ error: error.message });
   }
+});
+
+//STRIPE WEBHOOK ENDPOINT
+
+app.post("/webhook", async (req, res) => {
+  const sig = req.headers["stripe-signature"];
+  console.table(req.body);
+  let event;
+  res.status(200).json({ received: true });
 });
 
 module.exports = app;
