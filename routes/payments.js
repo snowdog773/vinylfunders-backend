@@ -65,9 +65,9 @@ app.post("/webhook", async (req, res) => {
 app.get("/stripeRecords", async (req, res) => {
   const records = await PaymentWebhookRecord.find();
   const formattedRecords = records.map((record) => ({
-    paymentId: record.paymentId,
+    paymentId: record.paymentId || "",
     type: record.type,
-    tempProjectId: record.tempProjectId,
+    tempProjectId: record.tempProjectId || "",
     data: JSON.parse(record.rawData),
   }));
   res.status(200).json(formattedRecords);
