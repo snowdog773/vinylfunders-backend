@@ -61,7 +61,7 @@ app.post("/webhook", async (req, res) => {
 
 app.get("/stripeRecords", async (req, res) => {
   const records = await PaymentWebhookRecord.find();
-  res.status(200).json(JSON.parse(records.rawData));
+  res.status(200).send(records.rawData, JSON.parse(records.rawData));
 });
 
 module.exports = app;
