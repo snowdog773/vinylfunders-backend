@@ -64,9 +64,13 @@ app.post("/webhook", async (req, res) => {
 
 app.get("/stripeRecords", async (req, res) => {
   const records = await PaymentWebhookRecord.find();
-  // Since records is an array of documents, map through them to parse the rawData
-  const parsedRecords = records.map((record) => JSON.parse(record.rawData));
-  res.status(200).json(parsedRecords, paymentId, type, tempProjectId);
+  const formattedRecords = records.map((record) => ({
+    paymentId: record.paymentId,
+    type: record.type,
+    tempProjectId: record.tempProjectId,
+    data: JSON.parse(record.rawData),
+  }));
+  res.status(200).json(formattedRecords);
 });
 
 module.exports = app;
