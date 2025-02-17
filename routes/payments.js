@@ -52,27 +52,34 @@ app.post("/webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
   const paymentIntent = req.body.data.object;
-  let customerEmail;
-  if (req.body.type === "payment_intent.succeeded") {
-    customerEmail = paymentIntent.receipt_email;
-  }
-  if (!customerEmail && paymentIntent.customer) {
-    const customer = await stripe.customers.retrieve(paymentIntent.customer);
-    customerEmail = customer.email;
-  }
 
-  await PaymentWebhookRecord.create({
-    paymentId: paymentIntent.id,
-    status: paymentIntent.status || "none",
-    amount: paymentIntent.amount || "none",
-    currency: paymentIntent.currency || "none",
-    customerEmail: customerEmail || "none",
-    tempProjectId: paymentIntent.metadata.tempProjectId || "none",
-    paymentMethod: paymentIntent.payment_method_types[0],
-    rawData: JSON.stringify(req.body),
-    type: req.body.type,
-  });
+  if (req.body.type === "checkout.session.completed") {
+    await PaymentWebhookRecord.create({
+      paymentId: paymentIntent.payment_intent,
+      checkoutSessionId: paymentIntent.id,
+      status: paymentIntent.status,
+      amount: paymentIntent.amount_total,
+      currency: paymentIntent.currency,
+      customerEmail: paymentIntent.customer_details.email,
+      tempProjectId: paymentIntent.metadata.tempProjectId || "none",
+      paymentMethod: paymentIntent.payment_method_types[0],
+      rawData: JSON.stringify(req.body),
+      type: req.body.type,
+    });
+  } else {
+    await PaymentWebhookRecord.create({
+      paymentId: paymentIntent.id,
 
+      status: paymentIntent.status,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency,
+      customerEmail: "see checkout session",
+      tempProjectId: paymentIntent.metadata.tempProjectId,
+      paymentMethod: paymentIntent.payment_method_types[0],
+      rawData: JSON.stringify(req.body),
+      type: req.body.type,
+    });
+  }
   res.status(200).json({ received: true });
 });
 
