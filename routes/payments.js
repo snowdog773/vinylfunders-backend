@@ -56,11 +56,11 @@ app.post("/webhook", async (req, res) => {
   console.log(sig);
   await PaymentWebhookRecord.create({
     paymentId: paymentIntent.id,
-    status: paymentIntent.status,
-    amount: paymentIntent.amount,
-    currency: paymentIntent.currency,
-    customerEmail: paymentIntent.receipt_email,
-    tempProjectId: paymentIntent.metadata.tempProjectId,
+    status: paymentIntent.status || "none",
+    amount: paymentIntent.amount || "none",
+    currency: paymentIntent.currency || "none",
+    customerEmail: paymentIntent.receipt_email || "none",
+    tempProjectId: paymentIntent.metadata.tempProjectId || "none",
     paymentMethod: paymentIntent.payment_method_types[0],
     rawData: JSON.stringify(req.body),
     type: req.body.type,
