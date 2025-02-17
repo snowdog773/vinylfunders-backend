@@ -78,7 +78,7 @@ const paymentWebhookRecordSchema = new mongoose.Schema({
   status: { type: String, required: true },
   amount: { type: String, required: true },
   currency: { type: String, required: true },
-  customerEmail: { type: String, required: true },
+  customerEmail: { type: String },
   tempProjectId: { type: String },
   projectId: { type: String },
   paymentMethod: { type: String, required: true },
