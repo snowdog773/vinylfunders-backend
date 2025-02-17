@@ -24,6 +24,10 @@ app.post("/create-checkout-session", async (req, res) => {
           target,
         },
       },
+      metadata: {
+        tempProjectId,
+        target,
+      },
       success_url: `${process.env.FRONTEND_URL}/processingPayment?tempProjectId=${tempProjectId}&target=${target}`,
       cancel_url: `${process.env.FRONTEND_URL}/paymentFailed`,
     });
@@ -72,6 +76,19 @@ app.post("/webhook", async (req, res) => {
       currency: paymentIntent.currency,
       customerEmail: paymentIntent.customer_details.email,
       tempProjectId: paymentIntent.metadata.tempProjectId || "none",
+      paymentMethod: paymentIntent.payment_method_types[0],
+      rawData: JSON.stringify(req.body),
+      type: req.body.type,
+    });
+  } else if (paymentIntent.metadata.funder) {
+    await PaymentWebhookRecord.create({
+      paymentId: paymentIntent.payment_intent,
+      checkoutSessionId: paymentIntent.id,
+      status: paymentIntent.status,
+      amount: paymentIntent.amount_total,
+      currency: paymentIntent.currency,
+      customerEmail: paymentIntent.customer_details.email,
+      projectId: paymentIntent.metadata.projectId,
       paymentMethod: paymentIntent.payment_method_types[0],
       rawData: JSON.stringify(req.body),
       type: req.body.type,

@@ -23,8 +23,10 @@ app.post("/create-checkout-session", async (req, res) => {
           paymentRef,
           projectTitle,
           artist,
+          funder: true,
         },
       },
+
       shipping_address_collection: {
         allowed_countries: ["GB"],
       },
