@@ -26,7 +26,9 @@ app.post("/create-checkout-session", async (req, res) => {
           funder: true,
         },
       },
-
+      checkout_session_data: {
+        metadata: { projectId, paymentRef, projectTitle, artist, funder: true },
+      },
       shipping_address_collection: {
         allowed_countries: ["GB"],
       },
