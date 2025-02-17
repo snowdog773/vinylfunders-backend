@@ -61,7 +61,7 @@ const Song = mongoose.model("Song", songSchema);
 const paymentWebhookRecordSchema = new mongoose.Schema({
   paymentId: { type: String, required: true },
   status: { type: String, required: true },
-  amount: { type: Number, required: true },
+  amount: { type: String, required: true },
   currency: { type: String, required: true },
   customerEmail: { type: String, required: true },
   tempProjectId: { type: String, required: true },
