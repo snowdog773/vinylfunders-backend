@@ -50,16 +50,22 @@ app.get("/check-payment/:tempProjectId", async (req, res) => {
 
 app.post("/webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
-  console.table(req.body);
-  console.log(req.body.data);
+
   const paymentIntent = req.body.data.object;
-  console.log(sig);
+  if (req.body.type === "payment_intent.succeeded") {
+    let customerEmail = paymentIntent.receipt_email;
+
+    if (!customerEmail && paymentIntent.customer) {
+      const customer = await stripe.customers.retrieve(paymentIntent.customer);
+      customerEmail = customer.email;
+    }
+  }
   await PaymentWebhookRecord.create({
     paymentId: paymentIntent.id,
     status: paymentIntent.status || "none",
     amount: paymentIntent.amount || "none",
     currency: paymentIntent.currency || "none",
-    customerEmail: paymentIntent.receipt_email || "none",
+    customerEmail: customerEmail || "none",
     tempProjectId: paymentIntent.metadata.tempProjectId || "none",
     paymentMethod: paymentIntent.payment_method_types[0],
     rawData: JSON.stringify(req.body),
