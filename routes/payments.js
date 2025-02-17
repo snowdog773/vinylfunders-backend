@@ -50,24 +50,30 @@ app.get("/check-payment/:tempProjectId", async (req, res) => {
 app.post("/webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
   console.table(req.body);
-  console.table(req.body.data);
+  console.log(req.body.data);
+  const paymentIntent = req.body.data.object;
   console.log(sig);
-  PaymentWebhookRecord.create({
-    paymentId: req.body.data.object.id,
+  await PaymentWebhookRecord.create({
+    paymentId: paymentIntent.id,
+    status: paymentIntent.status,
+    amount: paymentIntent.amount,
+    currency: paymentIntent.currency,
+    customerEmail: paymentIntent.receipt_email,
+    tempProjectId: paymentIntent.metadata.tempProjectId,
+    paymentMethod: paymentIntent.payment_method_types[0],
     rawData: JSON.stringify(req.body),
     type: req.body.type,
-    tempProjectId: req.body.data.object.metadata.tempProjectId,
   });
-  let event;
+
   res.status(200).json({ received: true });
 });
 
 app.get("/stripeRecords", async (req, res) => {
   const records = await PaymentWebhookRecord.find();
   const formattedRecords = records.map((record) => ({
-    paymentId: record.paymentId || "",
+    paymentId: record.paymentId || "none",
     type: record.type,
-    tempProjectId: record.tempProjectId || "",
+    tempProjectId: record.tempProjectId || "none",
     data: JSON.parse(record.rawData),
   }));
   res.status(200).json(formattedRecords);
