@@ -52,14 +52,15 @@ app.post("/webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
   const paymentIntent = req.body.data.object;
+  let customerEmail;
   if (req.body.type === "payment_intent.succeeded") {
-    let customerEmail = paymentIntent.receipt_email;
-
-    if (!customerEmail && paymentIntent.customer) {
-      const customer = await stripe.customers.retrieve(paymentIntent.customer);
-      customerEmail = customer.email;
-    }
+    customerEmail = paymentIntent.receipt_email;
   }
+  if (!customerEmail && paymentIntent.customer) {
+    const customer = await stripe.customers.retrieve(paymentIntent.customer);
+    customerEmail = customer.email;
+  }
+
   await PaymentWebhookRecord.create({
     paymentId: paymentIntent.id,
     status: paymentIntent.status || "none",
