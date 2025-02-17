@@ -34,7 +34,8 @@ app.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-////INCOMPLETE - NEEDS TO CHECK PAYMENTS TABLE OF DB TO CONFIRM PAYMENT SUCCESSFUL
+
+// CHECK PAYMENTS TABLE OF DB TO CONFIRM PAYMENT SUCCESSFUL
 app.get("/check-payment/:tempProjectId", async (req, res) => {
   try {
     const { tempProjectId } = req.params;
@@ -42,7 +43,7 @@ app.get("/check-payment/:tempProjectId", async (req, res) => {
       tempProjectId,
       type: "payment_intent.succeeded",
     });
-    console.log(payment);
+
     if (!payment) {
       res.status(404).json({ error: "Payment not found" });
       return;

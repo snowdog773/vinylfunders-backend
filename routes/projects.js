@@ -20,21 +20,28 @@ app.get("/allProjects", async (req, res) => {
         // Return the project with added frontCover and backCover
 
         //get song preview ID
-        const songPreviewObject = await Song.findOne({ projectId }).lean();
+        const songPreviewObject = await Song.findOne({
+          projectId,
+          preview: true,
+        }).lean();
         console.log(songPreviewObject);
         return {
           ...project,
           frontCover: thumbArray[0],
           backCover: thumbArray[1],
-          // songTitle: songPreviewObject.title,
-          // songPreviewId: songPreviewObject.previewId,
+          songTitle: songPreviewObject.title,
+          songPreviewId: songPreviewObject.previewId,
         };
       })
     );
     res.json(output);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res
+      .status(500)
+      .json({
+        error: `Internal Server Error - Get all projects. Error: ${error}`,
+      });
   }
 });
 // get all projects for a user id
