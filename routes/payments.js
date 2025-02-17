@@ -38,8 +38,17 @@ app.post("/create-checkout-session", async (req, res) => {
 app.get("/check-payment/:tempProjectId", async (req, res) => {
   try {
     const { tempProjectId } = req.params;
-    console.log(tempProjectId, "tempProjectId");
-    res.status(200).json({ tempProjectId, status: "paid" });
+    const payment = await PaymentWebhookRecord.findOne({
+      tempProjectId,
+      type: "payment_intent.succeeded",
+    });
+    console.log(payment);
+    if (!payment) {
+      res.status(404).json({ error: "Payment not found" });
+      return;
+    } else {
+      res.status(200).json({ tempProjectId, status: "paid" });
+    }
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: error.message });
