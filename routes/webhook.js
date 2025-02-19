@@ -22,7 +22,7 @@ router.post(
       const existingLog = await WebhookLog.findOne({ eventId: id });
       if (existingLog) {
         console.log(`Duplicate webhook received: ${id}`);
-        return res.status(200).json({ received: true });
+        return;
       }
 
       // Store the raw webhook data
@@ -49,7 +49,7 @@ router.post(
                 collectedInformation: data.object.collected_information,
                 amount: data.object.amount_total,
                 currency: data.object.currency,
-
+                status: "succeeded",
                 updatedAt: new Date(),
               }
             );
@@ -92,7 +92,7 @@ router.post(
           } else {
             await Payment.create({
               paymentIntentId: data.object.id,
-              status: "succeeded",
+              status: "pending",
               amount: data.object.amount,
               currency: data.object.currency,
               paymentMethod: data.object.payment_method_types[0],
