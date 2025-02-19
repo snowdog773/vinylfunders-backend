@@ -89,7 +89,7 @@ app.post("/webhook", async (req, res) => {
     const existingLog = await WebhookLog.findOne({ eventId: id });
     if (existingLog) {
       console.log(`Duplicate webhook received: ${id}`);
-      return;
+      return res.status(200).json({ received: true });
     }
 
     // Store the raw webhook data
