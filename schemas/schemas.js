@@ -82,13 +82,9 @@ const PaymentSchema = new mongoose.Schema(
   {
     stripeSessionId: { type: String, unique: true, required: true }, // checkout.session.id
     paymentIntentId: { type: String, unique: true }, // payment_intent.id
-    customerId: { type: String, required: true }, // Stripe Customer ID
-    tempProjectId: { type: String, required: true },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    }, // Your app’s user ID
+    customerDetails: { type: Object, required: true }, // Stripe Customer ID
+    tempProjectId: { type: String },
+
     amount: { type: Number, required: true }, // In smallest currency unit (e.g., cents)
     currency: { type: String, required: true }, // e.g., "usd"
     status: {

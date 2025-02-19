@@ -92,10 +92,10 @@ app.post("/webhook", async (req, res) => {
       await Payment.create({
         stripeSessionId: data.object.id,
         paymentIntentId: data.object.payment_intent || null,
-        customerId: data.object.customer,
-        userId: data.object.metadata?.userId || null, // Assuming user ID is stored in metadata
+        customerDetails: data.object.customer_details,
+
         amount: data.object.amount_total,
-        tempProjectId: data.object.metadata?.tempProjectId || null,
+
         currency: data.object.currency,
         status: "pending", // Mark as pending until payment_intent.succeeded
         metadata: data.object.metadata || {},
@@ -111,6 +111,7 @@ app.post("/webhook", async (req, res) => {
           paymentMethod: data.object.payment_method_types[0],
           receiptUrl: data.object.charges.data[0]?.receipt_url || null,
           updatedAt: new Date(),
+          tempProjectId: data.object.metadata.tempProjectId,
         }
       );
       break;
