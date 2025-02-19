@@ -46,9 +46,10 @@ router.post(
               {
                 stripeSessionId: data.object.id,
                 customerDetails: data.object.customer_details,
+                collectedInformation: data.object.collected_information,
                 amount: data.object.amount_total,
                 currency: data.object.currency,
-                metadata: data.object.metadata,
+
                 updatedAt: new Date(),
               }
             );
@@ -57,10 +58,11 @@ router.post(
               stripeSessionId: data.object.id,
               paymentIntentId: data.object.payment_intent,
               customerDetails: data.object.customer_details,
+              collectedInformation: data.object.collected_information,
               amount: data.object.amount_total,
               currency: data.object.currency,
               status: "pending",
-              metadata: data.object.metadata,
+
               createdAt: new Date(data.object.created * 1000),
             });
           }
@@ -80,6 +82,10 @@ router.post(
                 metadata: data.object.metadata,
                 tempProjectId: data.object.metadata.tempProjectId,
                 isFunder: data.object.metadata.isFunder,
+                projectId: data.object.metadata.projectId,
+                projectTitle: data.object.metadata.projectTitle,
+                artistId: data.object.metadata.artist,
+                paymentRef: data.object.metadata.paymentRef,
                 updatedAt: new Date(),
               }
             );
@@ -93,6 +99,10 @@ router.post(
               metadata: data.object.metadata,
               tempProjectId: data.object.metadata.tempProjectId,
               isFunder: data.object.metadata.isFunder,
+              projectId: data.object.metadata.projectId,
+              projectTitle: data.object.metadata.projectTitle,
+              artistId: data.object.metadata.artist,
+              paymentRef: data.object.metadata.paymentRef,
               createdAt: new Date(),
             });
           }

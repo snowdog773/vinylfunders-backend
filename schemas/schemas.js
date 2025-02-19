@@ -67,6 +67,9 @@ const PaymentSchema = new mongoose.Schema(
     projectId: { type: String }, //id linking funders to projects
     collectedInformation: { type: Object }, // Collected shipping info from the checkout form FUNDERS ONLY
     isFunder: { type: Boolean }, // true if the payment is from a FUNDER
+    projectTitle: { type: String }, // title of the project
+    artist: { type: String }, // artist name
+    paymentRef: { type: String }, // our generated payment reference that we sent to funder by email
     amount: { type: Number, required: true }, // In smallest currency unit (e.g., cents)
     currency: { type: String, required: true }, // e.g., "usd"
     status: {
