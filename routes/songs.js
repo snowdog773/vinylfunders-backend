@@ -123,7 +123,7 @@ app.get("/preview/:id", async (req, res) => {
     }
 
     const fileDetails = files[0];
-    console.log(fileDetails);
+
     if (fileDetails.contentType !== "audio/mpeg") {
       return res
         .status(400)

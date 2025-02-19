@@ -90,37 +90,66 @@ app.post("/webhook", async (req, res) => {
   // Process different event types
   switch (type) {
     case "checkout.session.completed":
-      await Payment.findOneAndUpdate(
-        { paymentIntentId: data.object.payment_intent },
-        {
+      const existingPayment = await Payment.findOne({
+        paymentIntentId: data.object.payment_intent,
+      });
+
+      if (existingPayment) {
+        await Payment.findOneAndUpdate(
+          { paymentIntentId: data.object.payment_intent },
+          {
+            stripeSessionId: data.object.id,
+            customerDetails: data.object.customer_details,
+
+            updatedAt: new Date(),
+          }
+        );
+      } else {
+        await Payment.create({
           stripeSessionId: data.object.id,
-          paymentIntentId: data.object.payment_intent || null,
+          paymentIntentId: data.object.payment_intent,
           customerDetails: data.object.customer_details,
-
           amount: data.object.amount_total,
-
           currency: data.object.currency,
-          status: "pending", // Mark as pending until payment_intent.succeeded
+          status: "pending",
 
-          createdAt: new Date(data.object.created * 1000), // Convert Unix timestamp
-        },
-        { upsert: true, new: true }
-      );
+          createdAt: new Date(data.object.created * 1000),
+        });
+      }
       break;
 
     case "payment_intent.succeeded":
-      await Payment.findOneAndUpdate(
-        { paymentIntentId: data.object.id },
-        {
+      const payment = await Payment.findOne({
+        paymentIntentId: data.object.id,
+      });
+
+      if (payment) {
+        await Payment.findOneAndUpdate(
+          { paymentIntentId: data.object.id },
+          {
+            status: "succeeded",
+            amount: data.object.amount_total,
+            currency: data.object.currency,
+            paymentMethod: data.object.payment_method_types[0],
+            metadata: data.object.metadata,
+            tempProjectId: data.object.metadata.tempProjectId,
+            isFunder: data.object.metadata.isFunder,
+            updatedAt: new Date(),
+          }
+        );
+      } else {
+        await Payment.create({
+          paymentIntentId: data.object.id,
           status: "succeeded",
+          amount: data.object.amount,
+          currency: data.object.currency,
           paymentMethod: data.object.payment_method_types[0],
-          updatedAt: new Date(),
+          metadata: data.object.metadata,
           tempProjectId: data.object.metadata.tempProjectId,
           isFunder: data.object.metadata.isFunder,
-          metadata: data.object.metadata,
-        },
-        { upsert: true, new: true }
-      );
+          createdAt: new Date(),
+        });
+      }
       break;
 
     case "payment_intent.payment_failed":
@@ -142,52 +171,6 @@ app.post("/webhook", async (req, res) => {
   }
   res.status(200).json({ received: true });
 });
-// const sig = req.headers["stripe-signature"];
-
-// const paymentIntent = req.body.data.object;
-
-// if (req.body.type === "checkout.session.completed") {
-//   await PaymentWebhookRecord.create({
-//     paymentId: paymentIntent.payment_intent,
-//     checkoutSessionId: paymentIntent.id,
-//     status: paymentIntent.status,
-//     amount: paymentIntent.amount_total,
-//     currency: paymentIntent.currency,
-//     customerEmail: paymentIntent.customer_details.email,
-//     tempProjectId: paymentIntent.metadata.tempProjectId || "none",
-//     paymentMethod: paymentIntent.payment_method_types[0],
-//     rawData: JSON.stringify(req.body),
-//     type: req.body.type,
-//   });
-// } else if (paymentIntent.metadata.funder) {
-//   await PaymentWebhookRecord.create({
-//     paymentId: paymentIntent.payment_intent,
-//     checkoutSessionId: paymentIntent.id,
-//     status: paymentIntent.status,
-//     amount: paymentIntent.amount_total,
-//     currency: paymentIntent.currency,
-//     customerEmail: paymentIntent.customer_details.email,
-//     projectId: paymentIntent.metadata.projectId,
-//     paymentMethod: paymentIntent.payment_method_types[0],
-//     rawData: JSON.stringify(req.body),
-//     type: req.body.type,
-//   });
-// } else {
-//   await PaymentWebhookRecord.create({
-//     paymentId: paymentIntent.id,
-
-//     status: paymentIntent.status,
-//     amount: paymentIntent.amount,
-//     currency: paymentIntent.currency,
-//     customerEmail: "see checkout session",
-//     tempProjectId: paymentIntent.metadata.tempProjectId,
-//     paymentMethod: paymentIntent.payment_method_types[0],
-//     rawData: JSON.stringify(req.body),
-//     type: req.body.type,
-//   });
-// }
-// res.status(200).json({ received: true });
-// });
 
 //need to capture checkout session created, payment intent succeeded, payment intent failed, payment intent canceled?, charge refunded, dispute created
 
