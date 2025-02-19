@@ -19,11 +19,11 @@ router.post(
       const { id, type, data } = event;
 
       // Check if this webhook event is already logged (to prevent duplicates)
-      const existingLog = await WebhookLog.findOne({ eventId: id });
-      if (existingLog) {
-        console.log(`Duplicate webhook received: ${id}`);
-        return res.status(200).json({ received: true });
-      }
+      //   const existingLog = await WebhookLog.findOne({ eventId: id });
+      //   if (existingLog) {
+      //     console.log(`Duplicate webhook received: ${id}`);
+      //     return res.status(200).json({ received: true });
+      //   }
 
       // Store the raw webhook data
       await WebhookLog.create({
