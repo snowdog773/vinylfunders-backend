@@ -44,9 +44,31 @@ app.post("/create-checkout-session", async (req, res) => {
 //NEED WEBHOOK ENDPOINT FOR STRIPE TO CONFIRM PAYMENT SUCCESSFUL AND WRITE TO NEW MONGO TABLE
 
 app.post("/confirm", async (req, res) => {
-  const { paymentRef } = req.body;
-  //check paymentRef in DB
-  res.status(200).json({ paymentRef, status: "paid" });
+  try {
+    const { paymentRef } = req.body;
+    const payment = await Payment.findOne({
+      paymentRef,
+      status: "succeeded",
+    });
+
+    if (!payment) {
+      res.status(404).json({ error: "Payment not found" });
+      return;
+    } else {
+      res.status(200).json({
+        ProjectId,
+        status: "paid",
+        amount: payment.amount,
+        currency: payment.currency,
+        paymentMethod: payment.paymentMethod,
+
+        createdAt: payment.createdAt,
+      });
+    }
+  } catch (error) {
+    console.error("Error checking payment:", error);
+    res.status(500).json({ error: "Internal sever error" });
+  }
 });
 
 module.exports = app;
