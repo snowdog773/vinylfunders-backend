@@ -81,7 +81,7 @@ app.post("/webhook", async (req, res) => {
         process.env.STRIPE_ENDPOINT_SECRET
       );
     } catch (err) {
-      response.status(400).send(`Webhook Error: ${err.message}`);
+      res.status(400).send(`Webhook Error: ${err.message}`);
     }
     const { id, type, data } = event;
 
