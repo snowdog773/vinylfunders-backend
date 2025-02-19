@@ -70,7 +70,7 @@ app.get("/check-payment/:tempProjectId", async (req, res) => {
 
 app.post(
   "/webhook",
-  express.raw({ type: "application/json" }), //middleware to parse raw request body
+  // express.raw({ type: "application/json" }), //middleware to parse raw request body
   async (req, res) => {
     try {
       const sig = req.headers["stripe-signature"];

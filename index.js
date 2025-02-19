@@ -3,6 +3,7 @@ const cors = require("cors");
 // const cron = require("node-cron");
 const app = express();
 require("dotenv").config();
+app.use("/payments/webhook", express.raw({ type: "application/json" })); //webhook route needs special parsing
 app.use(express.json());
 app.use(
   cors({
