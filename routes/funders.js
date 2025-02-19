@@ -41,7 +41,7 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-//NEED WEBHOOK ENDPOINT FOR STRIPE TO CONFIRM PAYMENT SUCCESSFUL AND WRITE TO NEW MONGO TABLE
+// CHECK PAYMENTS TABLE OF DB TO CONFIRM PAYMENT SUCCESSFUL
 
 app.post("/confirm", async (req, res) => {
   try {
@@ -56,8 +56,8 @@ app.post("/confirm", async (req, res) => {
       return;
     } else {
       res.status(200).json({
-        ProjectId,
-        status: "paid",
+        projectId: payment.projectId,
+        status: "suceeded",
         amount: payment.amount,
         currency: payment.currency,
         paymentMethod: payment.paymentMethod,
