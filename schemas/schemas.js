@@ -125,6 +125,6 @@ module.exports = {
   Project,
   Song,
   Image,
-  PaymentWebhookRecord,
+  Payment,
   WebhookLog,
 };
