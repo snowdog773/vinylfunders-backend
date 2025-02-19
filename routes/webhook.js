@@ -15,15 +15,15 @@ router.post(
         sig,
         process.env.STRIPE_ENDPOINT_SECRET
       );
-
+      res.status(200).json({ received: true }); //return quickly to avoid resends
       const { id, type, data } = event;
 
-      // Check if this webhook event is already logged (to prevent duplicates)
-      //   const existingLog = await WebhookLog.findOne({ eventId: id });
-      //   if (existingLog) {
-      //     console.log(`Duplicate webhook received: ${id}`);
-      //     return res.status(200).json({ received: true });
-      //   }
+      //   Check if this webhook event is already logged (to prevent duplicates)
+      const existingLog = await WebhookLog.findOne({ eventId: id });
+      if (existingLog) {
+        console.log(`Duplicate webhook received: ${id}`);
+        return res.status(200).json({ received: true });
+      }
 
       // Store the raw webhook data
       await WebhookLog.create({
@@ -125,7 +125,6 @@ router.post(
         default:
           console.log(`Unhandled event type: ${type}`);
       }
-      res.status(200).json({ received: true });
     } catch (err) {
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
