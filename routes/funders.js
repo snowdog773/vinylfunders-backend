@@ -57,7 +57,7 @@ app.post("/confirm", async (req, res) => {
     } else {
       res.status(200).json({
         projectId: payment.projectId,
-        status: "suceeded",
+        status: "succeeded",
         amount: payment.amount,
         currency: payment.currency,
         paymentMethod: payment.paymentMethod,
