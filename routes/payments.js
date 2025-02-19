@@ -75,7 +75,7 @@ app.post("/webhook", async (req, res) => {
     let event;
     //Validate webhook and create event
     try {
-      event = stripe.webhooks.constructEvent(
+      event = await stripe.webhooks.constructEvent(
         req.body,
         sig,
         process.env.STRIPE_ENDPOINT_SECRET
