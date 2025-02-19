@@ -68,7 +68,7 @@ app.get("/check-payment/:tempProjectId", async (req, res) => {
 //STRIPE WEBHOOK ENDPOINT
 
 app.post("/webhook", async (req, res) => {
-  const { id, type, data } = JSON.parse(req.body);
+  const { id, type, data } = req.body;
 
   // Check if this webhook event is already logged (to prevent duplicates)
   const existingLog = await WebhookLog.findOne({ eventId: id });
