@@ -113,7 +113,7 @@ app.post("/webhook", async (req, res) => {
         {
           status: "succeeded",
           paymentMethod: data.object.payment_method_types[0],
-          receiptUrl: data.object.charges.data[0]?.receipt_url || null,
+
           updatedAt: new Date(),
           tempProjectId: data.object.metadata.tempProjectId,
         },
@@ -138,6 +138,7 @@ app.post("/webhook", async (req, res) => {
     default:
       console.log(`Unhandled event type: ${type}`);
   }
+  res.status(200).json({ received: true });
 });
 // const sig = req.headers["stripe-signature"];
 

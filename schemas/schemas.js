@@ -83,8 +83,10 @@ const PaymentSchema = new mongoose.Schema(
     stripeSessionId: { type: String, unique: true, required: true }, // checkout.session.id
     paymentIntentId: { type: String, unique: true }, // payment_intent.id
     customerDetails: { type: Object, required: true }, // Stripe Customer ID
-    tempProjectId: { type: String },
-
+    tempProjectId: { type: String }, //id for artists creating projects
+    projectId: { type: String }, //id linking funders to projects
+    collectedInformation: { type: Object }, // Collected shipping info from the checkout form FUNDERS ONLY
+    isFunder: { type: Boolean }, // true if the payment is from a FUNDER
     amount: { type: Number, required: true }, // In smallest currency unit (e.g., cents)
     currency: { type: String, required: true }, // e.g., "usd"
     status: {
@@ -95,7 +97,7 @@ const PaymentSchema = new mongoose.Schema(
     paymentMethod: { type: String }, // e.g., "card", "paypal"
     paymentDetails: { type: Object }, // Store raw Stripe response if needed
     metadata: { type: Object }, // Custom metadata from Stripe
-    receiptUrl: { type: String }, // Receipt link from Stripe
+
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
