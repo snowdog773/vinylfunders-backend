@@ -3,8 +3,8 @@ const cors = require("cors");
 // const cron = require("node-cron");
 const app = express();
 require("dotenv").config();
-app.use("/payments/webhook", express.raw({ type: "application/json" })); //webhook route needs special parsing
-app.use(express.json());
+app.use("/payments/webhook", require("./routes/webhook")); //webhook route needs special noon json parsing
+
 app.use(
   cors({
     origin: ["http://localhost:3000", process.env.FRONTEND_URL],
@@ -12,6 +12,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.json());
 const mongoose = require("mongoose");
 const { GridFSBucket } = require("mongodb");
 
