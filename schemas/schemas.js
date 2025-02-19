@@ -64,32 +64,67 @@ const Song = mongoose.model("Song", songSchema);
 //   status: { type: String, required: true },
 //   amount: { type: String, required: true },
 //   currency: { type: String, required: true },
-//   customerEmail: { type: String, required: true },
-//   tempProjectId: { type: String, required: true },
+//   customerEmail: { type: String },
+//   tempProjectId: { type: String },
+//   projectId: { type: String },
 //   paymentMethod: { type: String, required: true },
 //   rawData: { type: String, required: true },
 //   date: { type: Date, default: Date.now },
 //   type: { type: String, required: true },
 // });
 
-const paymentWebhookRecordSchema = new mongoose.Schema({
-  paymentId: { type: String, required: true },
-  checkoutSessionId: { type: String },
-  status: { type: String, required: true },
-  amount: { type: String, required: true },
-  currency: { type: String, required: true },
-  customerEmail: { type: String },
-  tempProjectId: { type: String },
-  projectId: { type: String },
-  paymentMethod: { type: String, required: true },
-  rawData: { type: String, required: true },
-  date: { type: Date, default: Date.now },
-  type: { type: String, required: true },
-});
+// const PaymentWebhookRecord = mongoose.model(
+//   "PaymentWebhookRecord",
+//   paymentWebhookRecordSchema
+// );
 
-const PaymentWebhookRecord = mongoose.model(
-  "PaymentWebhookRecord",
-  paymentWebhookRecordSchema
+const PaymentSchema = new mongoose.Schema(
+  {
+    stripeSessionId: { type: String, unique: true, required: true }, // checkout.session.id
+    paymentIntentId: { type: String, unique: true }, // payment_intent.id
+    customerId: { type: String, required: true }, // Stripe Customer ID
+    tempProjectId: { type: String, required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    }, // Your app’s user ID
+    amount: { type: Number, required: true }, // In smallest currency unit (e.g., cents)
+    currency: { type: String, required: true }, // e.g., "usd"
+    status: {
+      type: String,
+      enum: ["pending", "succeeded", "failed", "refunded"],
+      required: true,
+    },
+    paymentMethod: { type: String }, // e.g., "card", "paypal"
+    paymentDetails: { type: Object }, // Store raw Stripe response if needed
+    metadata: { type: Object }, // Custom metadata from Stripe
+    receiptUrl: { type: String }, // Receipt link from Stripe
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
+  },
+  { timestamps: true }
 );
 
-module.exports = { User, Project, Song, Image, PaymentWebhookRecord };
+const Payment = mongoose.model("Payment", PaymentSchema);
+
+const WebhookLogSchema = new mongoose.Schema(
+  {
+    eventId: { type: String, unique: true, required: true }, // Stripe event ID
+    type: { type: String, required: true }, // Event type (e.g., payment_intent.succeeded)
+    payload: { type: Object, required: true }, // Full webhook payload
+    receivedAt: { type: Date, default: Date.now },
+  },
+  { timestamps: true }
+);
+
+const WebhookLog = mongoose.model("WebhookLog", WebhookLogSchema);
+
+module.exports = {
+  User,
+  Project,
+  Song,
+  Image,
+  PaymentWebhookRecord,
+  WebhookLog,
+};
