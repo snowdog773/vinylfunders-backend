@@ -80,7 +80,7 @@ const Song = mongoose.model("Song", songSchema);
 
 const PaymentSchema = new mongoose.Schema(
   {
-    stripeSessionId: { type: String, unique: true, required: true }, // checkout.session.id
+    stripeSessionId: { type: String, unique: true }, // checkout.session.id
     paymentIntentId: { type: String, unique: true }, // payment_intent.id
     customerDetails: { type: Object, required: true }, // Stripe Customer ID
     tempProjectId: { type: String }, //id for artists creating projects

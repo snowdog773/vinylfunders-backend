@@ -140,6 +140,7 @@ app.post("/webhook", async (req, res) => {
       } else {
         await Payment.create({
           paymentIntentId: data.object.id,
+
           status: "succeeded",
           amount: data.object.amount,
           currency: data.object.currency,
