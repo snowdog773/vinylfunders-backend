@@ -89,18 +89,22 @@ app.post("/webhook", async (req, res) => {
   // Process different event types
   switch (type) {
     case "checkout.session.completed":
-      await Payment.create({
-        stripeSessionId: data.object.id,
-        paymentIntentId: data.object.payment_intent || null,
-        customerDetails: data.object.customer_details,
+      await Payment.findOneAndUpdate(
+        { paymentIntentId: data.object.payment_intent },
+        {
+          stripeSessionId: data.object.id,
+          paymentIntentId: data.object.payment_intent || null,
+          customerDetails: data.object.customer_details,
 
-        amount: data.object.amount_total,
+          amount: data.object.amount_total,
 
-        currency: data.object.currency,
-        status: "pending", // Mark as pending until payment_intent.succeeded
-        metadata: data.object.metadata || {},
-        createdAt: new Date(data.object.created * 1000), // Convert Unix timestamp
-      });
+          currency: data.object.currency,
+          status: "pending", // Mark as pending until payment_intent.succeeded
+          metadata: data.object.metadata || {},
+          createdAt: new Date(data.object.created * 1000), // Convert Unix timestamp
+        },
+        { upsert: true, new: true }
+      );
       break;
 
     case "payment_intent.succeeded":
@@ -112,7 +116,8 @@ app.post("/webhook", async (req, res) => {
           receiptUrl: data.object.charges.data[0]?.receipt_url || null,
           updatedAt: new Date(),
           tempProjectId: data.object.metadata.tempProjectId,
-        }
+        },
+        { upsert: true, new: true }
       );
       break;
 
