@@ -7,9 +7,14 @@ app.use(express.json());
 app.use(cors());
 const mongoose = require("mongoose");
 const { GridFSBucket } = require("mongodb");
-const util = require("i/lib/util");
-const convertMp3 = require("./utils/convertMp3");
 
+//IMPORTANT -- throughout this app tempProjectId is an
+// ID created when an artist begins a checkout session to create a project
+//and is used to connect the project order to the project and payment records.
+//this is handled in the payments.js routes file
+//projectId is a separate ID generated on the front end when payment is completed
+//and is used as the primary tracking ID for people who fund projects
+//this is handled in the funders.js routes file
 // //mongoose set up
 mongoose.connect(process.env.MONGO_URL, {
   // useNewUrlParser: true,
