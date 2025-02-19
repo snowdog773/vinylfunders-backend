@@ -23,7 +23,7 @@ app.post("/create-checkout-session", async (req, res) => {
           paymentRef,
           projectTitle,
           artist,
-          funder: true,
+          isFunder: true,
         },
       },
 

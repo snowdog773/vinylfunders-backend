@@ -22,6 +22,7 @@ app.post("/create-checkout-session", async (req, res) => {
         metadata: {
           tempProjectId,
           target,
+          isFunder: false,
         },
       },
 
@@ -100,7 +101,7 @@ app.post("/webhook", async (req, res) => {
 
           currency: data.object.currency,
           status: "pending", // Mark as pending until payment_intent.succeeded
-          metadata: data.object.metadata || {},
+
           createdAt: new Date(data.object.created * 1000), // Convert Unix timestamp
         },
         { upsert: true, new: true }
@@ -113,9 +114,10 @@ app.post("/webhook", async (req, res) => {
         {
           status: "succeeded",
           paymentMethod: data.object.payment_method_types[0],
-
           updatedAt: new Date(),
           tempProjectId: data.object.metadata.tempProjectId,
+          isFunder: data.object.metadata.isFunder,
+          metadata: data.object.metadata,
         },
         { upsert: true, new: true }
       );
