@@ -90,7 +90,7 @@ const Payment = mongoose.model("Payment", PaymentSchema);
 
 const WebhookLogSchema = new mongoose.Schema(
   {
-    eventId: { type: String, unique: true, required: true }, // Stripe event ID
+    eventId: { type: String, required: true }, // Stripe event ID
     type: { type: String, required: true }, // Event type (e.g., payment_intent.succeeded)
     payload: { type: Object, required: true }, // Full webhook payload
     receivedAt: { type: Date, default: Date.now },
