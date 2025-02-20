@@ -23,7 +23,7 @@ async function sendEmailWithCsv(projectId) {
     };
 
     await sgMail.send(msg);
-    console.log("Email sent successfully!");
+    console.log("Email sent with CSV attachment successfully!");
   } catch (error) {
     console.error("Error sending email:", error);
   }
@@ -44,7 +44,7 @@ async function emailConfirmationToBacker(
     };
 
     await sgMail.send(msg);
-    console.log("Email sent successfully!");
+    console.log("Email sent to backer successfully!");
   } catch (error) {
     console.error("Error sending email:", error);
   }
