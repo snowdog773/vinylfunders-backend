@@ -9,6 +9,7 @@ const {
 } = require("../schemas/schemas");
 
 const sendEmailWithCsv = require("../utils/sendEmails");
+const emailConfirmationToBacker = require("../utils/sendEmails");
 //THIS FILE IS FOR PAYMENTS INVOLVING TAKING PAYMENT FROM FUNDERS - FOR PROJECT SETUP PAYMENTS LOOK FOR payments.js
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
 app.post("/create-checkout-session", async (req, res) => {
@@ -53,10 +54,11 @@ app.post("/create-checkout-session", async (req, res) => {
 app.post("/confirm", async (req, res) => {
   try {
     const { paymentRef } = req.body;
-    const { paymentIntentId, amount, projectId } = await PaymentIntent.findOne({
-      paymentRef,
-      status: "succeeded",
-    });
+    const { paymentIntentId, amount, projectId, projectTitle, artistId } =
+      await PaymentIntent.findOne({
+        paymentRef,
+        status: "succeeded",
+      });
     const payment = await CheckoutSession.findOne({
       paymentIntentId,
     });
@@ -90,7 +92,12 @@ app.post("/confirm", async (req, res) => {
           }
         );
       }
-
+      emailConfirmationToBacker(
+        payment.customerDetails.email,
+        projectTitle,
+        artistId,
+        paymentRef
+      );
       res.status(200).json({
         projectId,
         status: "succeeded",

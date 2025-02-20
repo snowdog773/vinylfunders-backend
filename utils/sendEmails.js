@@ -29,4 +29,25 @@ async function sendEmailWithCsv(projectId) {
   }
 }
 
-module.exports = sendEmailWithCsv;
+async function emailConfirmationToBacker(
+  toEmail,
+  projectTitle,
+  artist,
+  paymentRef
+) {
+  try {
+    const msg = {
+      to: toEmail, // Recipient email
+      from: "jonpitans@gmail.com", // Your verified sender email
+      subject: `Thanks for funding ${projectTitle} from ${artist}`,
+      text: `Thank you for funding this ${projectTitle} by ${artist}. Your payment reference number is ${paymentRef} which you should keep a copy of. We appreciate your support!`,
+    };
+
+    await sgMail.send(msg);
+    console.log("Email sent successfully!");
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+}
+
+(module.exports = sendEmailWithCsv), emailConfirmationToBacker;
