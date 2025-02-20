@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const { Payment } = require("../schemas/schemas");
+const { PaymentIntent, CheckoutSession } = require("../schemas/schemas");
 
 //THIS FILE IS FOR PAYMENTS INVOLVING SETTING UP PROJECTS - FOR FUND SPONSORS LOOK FOR funders.js
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
@@ -41,9 +41,12 @@ app.post("/create-checkout-session", async (req, res) => {
 app.get("/check-payment/:tempProjectId", async (req, res) => {
   try {
     const { tempProjectId } = req.params;
-    const payment = await Payment.findOne({
+    const { paymentIntentId } = await PaymentIntent.findOne({
       tempProjectId,
       status: "succeeded",
+    });
+    const payment = await CheckoutSession.findOne({
+      paymentIntentId,
     });
 
     if (!payment) {
