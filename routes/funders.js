@@ -80,7 +80,7 @@ app.post("/confirm", async (req, res) => {
         await Project.findOneAndUpdate(
           { projectId },
           {
-            $inc: { fundRaised: payment.amount },
+            $inc: { fundRaised: amount },
           }
         );
       }
