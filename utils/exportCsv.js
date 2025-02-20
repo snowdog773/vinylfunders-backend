@@ -9,14 +9,12 @@ async function exportCsv(projectId) {
       isFunder: true,
       status: "succeeded",
     });
-    console.log("Payment Intents found:", paymentIntents.length);
 
     const salesArray = await Promise.all(
       paymentIntents.map(async (e) => {
         const checkoutSession = await CheckoutSession.findOne({
           paymentIntentId: e.paymentIntentId,
         });
-        console.log("Checkout Session found:", checkoutSession?._id);
 
         const {
           name,
@@ -39,8 +37,6 @@ async function exportCsv(projectId) {
         };
       })
     );
-    console.log("Sales Array built:", salesArray.length);
-    console.log("First sale item:", salesArray[0]);
 
     const csvConfig = mkConfig({
       useKeysAsHeaders: true,
@@ -48,9 +44,26 @@ async function exportCsv(projectId) {
       decimalSeparator: ".",
       showTitle: false,
       useBom: true,
+      headers: [
+        "name",
+        "line1",
+        "line2",
+        "city",
+        "state",
+        "country",
+        "postal_code",
+        "email",
+        "amount",
+        "currency",
+        "paymentMethod",
+        "paymentIntentId",
+      ],
     });
 
-    const csv = generateCsv(csvConfig)(salesArray);
+    // Create the generator function first
+    const csvGenerator = generateCsv(csvConfig);
+    // Then generate the CSV
+    const csv = csvGenerator(salesArray);
     console.log("CSV generated length:", csv.length);
     return csv;
   } catch (error) {
