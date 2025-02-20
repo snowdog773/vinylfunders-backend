@@ -1,4 +1,5 @@
 const express = require("express");
+
 const app = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const {
@@ -6,6 +7,7 @@ const {
   CheckoutSession,
   Project,
 } = require("../schemas/schemas");
+const exportCsv = require("../utils/exportCsv");
 //THIS FILE IS FOR PAYMENTS INVOLVING TAKING PAYMENT FROM FUNDERS - FOR PROJECT SETUP PAYMENTS LOOK FOR payments.js
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
 app.post("/create-checkout-session", async (req, res) => {
@@ -63,9 +65,9 @@ app.post("/confirm", async (req, res) => {
       return;
     } else {
       //increment funding count on project, check for completion
-      console.log("Received projectId:", projectId);
+
       const { fundTarget, fundRaised } = await Project.findOne({ projectId });
-      console.log(fundRaised, fundTarget, amount);
+
       if (fundRaised + amount >= fundTarget) {
         await Project.findOneAndUpdate(
           { projectId },
@@ -77,6 +79,7 @@ app.post("/confirm", async (req, res) => {
           }
         );
         console.log("Project completed", projectId);
+        exportCsv(projectId); //produce and send csv of shipping details to project owner
         //email project owner, admin and funders
       } else {
         await Project.findOneAndUpdate(
