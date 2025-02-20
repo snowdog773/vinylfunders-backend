@@ -1,7 +1,11 @@
 const express = require("express");
 const app = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const { PaymentIntent, CheckoutSession } = require("../schemas/schemas");
+const {
+  PaymentIntent,
+  CheckoutSession,
+  Project,
+} = require("../schemas/schemas");
 //THIS FILE IS FOR PAYMENTS INVOLVING TAKING PAYMENT FROM FUNDERS - FOR PROJECT SETUP PAYMENTS LOOK FOR payments.js
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
 app.post("/create-checkout-session", async (req, res) => {
@@ -58,6 +62,29 @@ app.post("/confirm", async (req, res) => {
       res.status(404).json({ error: "Payment not found" });
       return;
     } else {
+      //increment funding count on project, check for completion
+      const { fundTarget, fundRaised } = await Project.find({ projectId });
+      if (fundRaised + payment.amount >= fundTarget) {
+        await Project.findOneAndUpdate(
+          { projectId },
+          {
+            $inc: { fundRaised: payment.amount },
+            $set: {
+              status: "complete",
+            },
+          }
+        );
+        console.log("Project completed", projectId);
+        //email project owner, admin and funders
+      } else {
+        await Project.findOneAndUpdate(
+          { projectId },
+          {
+            $inc: { fundRaised: payment.amount },
+          }
+        );
+      }
+
       res.status(200).json({
         projectId,
         status: "succeeded",

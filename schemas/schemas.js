@@ -21,7 +21,11 @@ const projectSchema = new mongoose.Schema({
   description: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   completed: { type: Boolean, default: false }, //refers to is project setup
-  status: { type: String, required: true }, //'active' or 'complete' or 'failed' depending if funding target is met
+  status: {
+    type: String,
+    enum: ["succeeded", "failed", "refunded"],
+    required: true,
+  }, //'active' or 'complete' or 'failed' depending if funding target is met
   fundTarget: { type: Number, required: true }, //in pence
   fundRaised: { type: Number, required: true }, //in pence
 });
