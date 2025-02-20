@@ -1,6 +1,6 @@
-import { CheckoutSession, PaymentIntent } from "../schemas/schemas";
+const { CheckoutSession, PaymentIntent } = require("../schemas/schemas");
 
-export async function exportCsv(projectId) {
+async function exportCsv(projectId) {
   try {
     const paymentIntents = await PaymentIntent.find({
       projectId: projectId,
@@ -21,3 +21,5 @@ export async function exportCsv(projectId) {
     console.error("Error exporting CSV:", error);
   }
 }
+
+module.exports = exportCsv;
