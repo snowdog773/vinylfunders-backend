@@ -50,7 +50,7 @@ app.post("/create-checkout-session", async (req, res) => {
 app.post("/confirm", async (req, res) => {
   try {
     const { paymentRef, projectId } = req.body;
-    const { paymentIntentId } = await PaymentIntent.findOne({
+    const { paymentIntentId, amount } = await PaymentIntent.findOne({
       paymentRef,
       status: "succeeded",
     });
@@ -64,11 +64,11 @@ app.post("/confirm", async (req, res) => {
     } else {
       //increment funding count on project, check for completion
       const { fundTarget, fundRaised } = await Project.find({ projectId });
-      if (fundRaised + payment.amount >= fundTarget) {
+      if (fundRaised + amount >= fundTarget) {
         await Project.findOneAndUpdate(
           { projectId },
           {
-            $inc: { fundRaised: payment.amount },
+            $inc: { fundRaised: amount },
             $set: {
               status: "complete",
             },

@@ -61,37 +61,6 @@ const songSchema = new mongoose.Schema({
 
 const Song = mongoose.model("Song", songSchema);
 
-// const PaymentSchema = new mongoose.Schema(
-//   {
-//     stripeSessionId: { type: String, unique: true }, // checkout.session.id
-//     paymentIntentId: { type: String, unique: true }, // payment_intent.id
-//     customerDetails: { type: Object }, // Stripe Customer ID
-//     tempProjectId: { type: String }, //id for artists creating projects
-//     projectId: { type: String }, //id linking funders to projects
-//     collectedInformation: { type: Object }, // Collected shipping info from the checkout form FUNDERS ONLY
-//     isFunder: { type: Boolean }, // true if the payment is from a FUNDER
-//     projectTitle: { type: String }, // title of the project
-//     artist: { type: String }, // artist name
-//     paymentRef: { type: String }, // our generated payment reference that we sent to funder by email
-//     amount: { type: Number, required: true }, // In smallest currency unit (e.g., cents)
-//     currency: { type: String, required: true }, // e.g., "usd"
-//     status: {
-//       type: String,
-//       enum: ["pending", "succeeded", "failed", "refunded"],
-//       required: true,
-//     },
-//     paymentMethod: { type: String }, // e.g., "card", "paypal"
-//     paymentDetails: { type: Object }, // Store raw Stripe response if needed
-//     metadata: { type: Object }, // Custom metadata from Stripe
-
-//     createdAt: { type: Date, default: Date.now },
-//     updatedAt: { type: Date, default: Date.now },
-//   },
-//   { timestamps: true }
-// );
-
-// const Payment = mongoose.model("Payment", PaymentSchema);
-
 const WebhookLogSchema = new mongoose.Schema(
   {
     eventId: { type: String, required: true }, // Stripe event ID
@@ -109,7 +78,7 @@ const checkoutSessionSchema = new mongoose.Schema({
   paymentIntentId: { type: String, required: true, unique: true },
   customerDetails: { type: Object },
   collectedInformation: { type: Object },
-  amount: { type: String },
+  amount: { type: Number },
   currency: { type: String },
   paymentMethod: { type: String },
   createdAt: { type: Date, default: Date.now },
