@@ -9,7 +9,7 @@ async function exportCsv(projectId) {
     const salesArray = [];
     paymentIntents.forEach(async (e) => {
       const checkoutSession = await CheckoutSession.findOne({
-        paymentIntentId: e._id,
+        paymentIntentId: e.paymentIntentId,
       });
       const {
         name,
