@@ -63,8 +63,9 @@ app.post("/confirm", async (req, res) => {
       return;
     } else {
       //increment funding count on project, check for completion
-      console.log(fundRaised, fundTarget, amount);
+
       const { fundTarget, fundRaised } = await Project.find({ projectId });
+      console.log(fundRaised, fundTarget, amount);
       if (fundRaised + amount >= fundTarget) {
         await Project.findOneAndUpdate(
           { projectId },
