@@ -50,4 +50,4 @@ async function emailConfirmationToBacker(
   }
 }
 
-(module.exports = sendEmailWithCsv), emailConfirmationToBacker;
+module.exports = { sendEmailWithCsv, emailConfirmationToBacker };

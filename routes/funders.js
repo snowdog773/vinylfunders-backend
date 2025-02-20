@@ -8,8 +8,11 @@ const {
   Project,
 } = require("../schemas/schemas");
 
-const sendEmailWithCsv = require("../utils/sendEmails");
-const emailConfirmationToBacker = require("../utils/sendEmails");
+const {
+  sendEmailWithCsv,
+  emailConfirmationToBacker,
+} = require("../utils/sendEmails");
+
 //THIS FILE IS FOR PAYMENTS INVOLVING TAKING PAYMENT FROM FUNDERS - FOR PROJECT SETUP PAYMENTS LOOK FOR payments.js
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
 app.post("/create-checkout-session", async (req, res) => {
