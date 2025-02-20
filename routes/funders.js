@@ -49,8 +49,8 @@ app.post("/create-checkout-session", async (req, res) => {
 
 app.post("/confirm", async (req, res) => {
   try {
-    const { paymentRef, projectId } = req.body;
-    const { paymentIntentId, amount } = await PaymentIntent.findOne({
+    const { paymentRef } = req.body;
+    const { paymentIntentId, amount, projectId } = await PaymentIntent.findOne({
       paymentRef,
       status: "succeeded",
     });
