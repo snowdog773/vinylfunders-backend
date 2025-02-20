@@ -7,7 +7,8 @@ const {
   CheckoutSession,
   Project,
 } = require("../schemas/schemas");
-const exportCsv = require("../utils/exportCsv");
+
+const sendEmailWithCsv = require("../utils/sendEmails");
 //THIS FILE IS FOR PAYMENTS INVOLVING TAKING PAYMENT FROM FUNDERS - FOR PROJECT SETUP PAYMENTS LOOK FOR payments.js
 //USE TO INITIALIZE A PAYMENT SESSION IN THE FRONT END
 app.post("/create-checkout-session", async (req, res) => {
@@ -79,7 +80,7 @@ app.post("/confirm", async (req, res) => {
           }
         );
         console.log("Project completed", projectId);
-        exportCsv(projectId); //produce and send csv of shipping details to project owner
+        sendEmailWithCsv(projectId); //produce and send csv of shipping details to project owner
         //email project owner, admin and funders
       } else {
         await Project.findOneAndUpdate(
