@@ -68,7 +68,7 @@ app.post("/confirm", async (req, res) => {
         await Project.findOneAndUpdate(
           { projectId },
           {
-            $inc: { fundRaised: amount },
+            $set: { fundRaised: fundRaised + amount },
             $set: {
               status: "complete",
             },
@@ -80,7 +80,7 @@ app.post("/confirm", async (req, res) => {
         await Project.findOneAndUpdate(
           { projectId },
           {
-            $inc: { fundRaised: amount },
+            $set: { fundRaised: fundRaised + amount },
           }
         );
       }
