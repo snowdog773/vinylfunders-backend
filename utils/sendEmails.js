@@ -40,7 +40,7 @@ async function emailConfirmationToBacker(
       to: toEmail, // Recipient email
       from: "jonpitans@gmail.com", // Your verified sender email
       subject: `Thanks for funding ${projectTitle} from ${artist}`,
-      text: `Thank you for funding this ${projectTitle} by ${artist}. Your payment reference number is ${paymentRef} which you should keep a copy of. We appreciate your support!`,
+      text: `Thank you for funding ${projectTitle} by ${artist}. Your payment reference number is ${paymentRef} which you should keep a copy of. We appreciate your support!`,
     };
 
     await sgMail.send(msg);
