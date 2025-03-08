@@ -7,9 +7,9 @@ app.use("/payments/webhook", require("./routes/webhook")); //webhook route needs
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", process.env.FRONTEND_URL],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
+    // origin: ["http://localhost:3000", process.env.FRONTEND_URL],
+    // methods: ["GET", "POST", "PUT", "DELETE"],
+    // credentials: true,
   })
 );
 app.use((req, res, next) => {
