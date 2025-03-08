@@ -7,13 +7,18 @@ app.use("/payments/webhook", require("./routes/webhook")); //webhook route needs
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", process.env.FRONTEND_URL],
+    origin: [
+      "http://localhost:3000",
+      process.env.FRONTEND_URL,
+      "https://vinyl-funders-frontend.onrender.com",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     exposedHeaders: ["Content-Length", "Authorization"],
   })
 );
+
 // app.use((req, res, next) => {
 //   console.log(`${req.method} request to ${req.url}`);
 //   next();
