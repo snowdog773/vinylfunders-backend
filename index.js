@@ -89,15 +89,18 @@ app.listen(PORT, () => {
 });
 
 function stop() {
-  // Run some code to clean things up before server exits or restarts
-
-  console.log("⬇ Killing process");
-  process.exit(); // THEN EXITS THE PROCESS.
+  console.log("⬇ Graceful shutdown initiated");
+  mongoose.connection.close(() => {
+    server.close(() => {
+      console.log("Server and MongoDB connections closed");
+      process.exit(0);
+    });
+  });
 }
 
-process.on("SIGINT", stop);
+// process.on("SIGINT", stop);
 process.on("SIGTERM", stop);
-process.on("SIGQUIT", stop);
+// process.on("SIGQUIT", stop);
 
 process.once("SIGUSR2", function () {
   // Run some code to do a different kind of cleanup on nodemon restart:
