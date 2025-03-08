@@ -2,6 +2,7 @@ const express = require("express");
 const app = express.Router();
 const { nanoid } = require("nanoid");
 const { Project, Image, Song } = require("../schemas/schemas");
+const { checkJwt } = require("../middleware/auth");
 app.get("/allProjects", async (req, res) => {
   const { limit } = req.query;
   try {
@@ -37,11 +38,9 @@ app.get("/allProjects", async (req, res) => {
     res.json(output);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        error: `Internal Server Error - Get all projects. Error: ${error}`,
-      });
+    res.status(500).json({
+      error: `Internal Server Error - Get all projects. Error: ${error}`,
+    });
   }
 });
 // get all projects for a user id
@@ -119,7 +118,8 @@ app.get("/single/:projectId", async (req, res) => {
 });
 
 // create new project
-app.post("/", async (req, res) => {
+app.post("/", checkJwt, async (req, res) => {
+  console.log("Received request to create new project");
   try {
     const {
       ownerId,
@@ -146,13 +146,14 @@ app.post("/", async (req, res) => {
     await newProject.save();
     res.status(200).send("new project created");
   } catch (err) {
+    console.log(err);
     res.status(500).send(err);
   }
 });
 
 //update project
 
-app.put("/complete/:id", async (req, res) => {
+app.put("/complete/:id", checkJwt, async (req, res) => {
   const { id } = req.params;
   try {
     const result = await Project.findOneAndUpdate(

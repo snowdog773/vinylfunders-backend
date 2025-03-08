@@ -12,6 +12,10 @@ app.use(
     credentials: true,
   })
 );
+app.use((req, res, next) => {
+  console.log(`${req.method} request to ${req.url}`);
+  next();
+});
 app.use(express.json());
 const mongoose = require("mongoose");
 const { GridFSBucket } = require("mongodb");

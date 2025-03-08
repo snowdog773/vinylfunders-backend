@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express.Router();
+const { checkJwt } = require("../middleware/auth");
 const { Song } = require("../schemas/schemas");
 const multer = require("multer");
 const mongoose = require("mongoose");
@@ -13,7 +14,7 @@ const upload = multer({ storage });
 
 //set up file retrieval
 
-app.post("/", upload.single("songFile"), async (req, res) => {
+app.post("/", checkJwt, upload.single("songFile"), async (req, res) => {
   const gridfsSongBucket = req.app.locals.gridfsSongBucket; // Access GridFS instance
   const gridfsPreviewSongBucket = req.app.locals.gridfsPreviewSongBucket;
 
@@ -37,11 +38,16 @@ app.post("/", upload.single("songFile"), async (req, res) => {
         res.status(500).json({ message: "Upload failed" });
       })
       .on("finish", async () => {
-        console.log("File uploaded successfully");
-
         const { ownerId, projectId, title, track, side, preview, length } =
           req.body;
-
+        console.table({
+          message: "File uploaded successfully",
+          title,
+          track,
+          side,
+          preview,
+          length,
+        });
         let previewFileId = null;
         const isPreview = preview === "true" || preview === true;
         if (isPreview) {

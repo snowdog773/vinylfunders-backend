@@ -1,4 +1,5 @@
 const express = require("express");
+const { checkJwt } = require("../middleware/auth");
 const app = express.Router();
 const multer = require("multer");
 const mongoose = require("mongoose");
@@ -9,7 +10,7 @@ const upload = multer({ storage });
 const { Readable } = require("stream");
 const sharp = require("sharp");
 
-app.post("/", upload.single("imageFile"), async (req, res) => {
+app.post("/", checkJwt, upload.single("imageFile"), async (req, res) => {
   const gridfsImageBucket = req.app.locals.gridfsImageBucket;
   const gridfsThumbBucket = req.app.locals.gridfsThumbBucket;
   try {
